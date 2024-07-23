@@ -33,6 +33,7 @@ public_users.get('/author/:author',function (req, res) {
     let obj=books[key];
     if (obj['author']===author) {
       res.send(JSON.stringify(obj,null,4));
+      return;
     } 
   }
 
@@ -45,7 +46,19 @@ public_users.get('/author/:author',function (req, res) {
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+
+  const title=req.params.title;
+
+  for (const key of Object.keys(books)) {
+
+    let obj=books[key];
+    if(obj['title']===title){
+      res.send(JSON.stringify(obj,null,4));
+      return;
+    }
+    
+  }
+  return res.status(300).json({message: "This name book isn't available"});
 });
 
 //  Get book review
