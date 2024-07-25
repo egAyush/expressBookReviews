@@ -147,15 +147,10 @@ public_users.get('/title/:title',function (req, res) {
       }
       
     }
-
     return res.status(300).json({message: "This name book isn't available"});
-
   }).catch((err)=>{
     res.status(500).send(err);
   })
-
-
-
 
   // with express
   // for (const key of Object.keys(books)) {
