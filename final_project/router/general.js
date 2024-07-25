@@ -6,6 +6,8 @@ const public_users = express.Router();
 
 
 
+
+
 const doesExist=(username)=>{
   let userWithSameName=users.filter((user)=>{
     return user.username==username;
@@ -36,34 +38,90 @@ public_users.post("/register", (req,res) => {
   return res.status(404).json({message: "Unable to register user."});
 });
 
+
+
+function fetchbook(){
+  return new Promise ((resolve, reject)=>{
+      setTimeout(()=>{
+          if(books){
+            resolve(books);
+          }else{
+            reject(
+              "No book found"
+            );
+          }
+      },1000)
+  })
+}
+
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-  //Write your code here
-   res.send(JSON.stringify(books,null,4));
+
+  fetchbook()
+  .then((books)=>{
+    res.send(JSON.stringify(books,null,4));
+
+  }).catch((err)=>{
+    res.status(500).send(err);
+  })
+
+
+  // //Write your code here
+  //  res.send(JSON.stringify(books,null,4));
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   const isbn=req.params.isbn;
-  res.send(books[isbn]);
+
+  // With promiseK
+  fetchbook()
+  .then((books)=>{
+    res.send(books[isbn])
+  })
+  .catch((err)=>{
+    res.status(500).send(err);
+  })
+
+
+
+  // res.send(books[isbn]);
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
 
-  const author=req.params.author;
-  
+  const author=req.params.author; 
 
-  for (const key of Object.keys(books) ){
-    let obj=books[key];
-    if (obj['author']===author) {
-      res.send(JSON.stringify(obj,null,4));
-      return;
-    } 
-  }
+  // With promise
+  fetchbook()
+  .then((books)=>{
+    for (const key of Object.keys(books) ){
+      let obj=books[key];
+      if (obj['author']===author) {
+        res.send(JSON.stringify(obj,null,4));
+        return;
+      } 
+    }
+    return res.status(400).json({message:"Not avilable"});
 
-  return res.status(400).json({message:"Not avilable"});
+  })
+  .catch((err)=>{
+    res.status(500).send(err);
+  })
+
+
+  // With express
+  // for (const key of Object.keys(books) ){
+  //   let obj=books[key];
+  //   if (obj['author']===author) {
+  //     res.send(JSON.stringify(obj,null,4));
+  //     return;
+  //   } 
+  // }
+
+  // return res.status(400).json({message:"Not avilable"});
  
   //Write your code here
   
@@ -75,16 +133,41 @@ public_users.get('/title/:title',function (req, res) {
 
   const title=req.params.title;
 
-  for (const key of Object.keys(books)) {
+  // with promise
 
-    let obj=books[key];
-    if(obj['title']===title){
-      res.send(JSON.stringify(obj,null,4));
-      return;
+  fetchbook()
+  .then((books)=>{
+
+    for (const key of Object.keys(books)) {
+
+      let obj=books[key];
+      if(obj['title']===title){
+        res.send(JSON.stringify(obj,null,4));
+        return;
+      }
+      
     }
+
+    return res.status(300).json({message: "This name book isn't available"});
+
+  }).catch((err)=>{
+    res.status(500).send(err);
+  })
+
+
+
+
+  // with express
+  // for (const key of Object.keys(books)) {
+
+  //   let obj=books[key];
+  //   if(obj['title']===title){
+  //     res.send(JSON.stringify(obj,null,4));
+  //     return;
+  //   }
     
-  }
-  return res.status(300).json({message: "This name book isn't available"});
+  // }
+  // return res.status(300).json({message: "This name book isn't available"});
 });
 
 //  Get book review
